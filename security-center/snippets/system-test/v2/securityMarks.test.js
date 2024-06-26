@@ -1,4 +1,4 @@
-// Copyright 2019 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ describe('Client with SourcesAndFindings', async () => {
         // Resource the finding is associated with.  This is an
         // example any resource identifier can be used.
         resourceName:
-          '//cloudresourcemanager.googleapis.com/organizations/11232',
+          `//cloudresourcemanager.googleapis.com/organizations/${organizationId}`,
         // A free-form category.
         category: 'MEDIUM_RISK_ONE',
         // The time associated with discovering the issue.
@@ -67,14 +67,14 @@ describe('Client with SourcesAndFindings', async () => {
       findingName: finding.name,
       untouchedFindingName: untouchedFinding.name,
     };
-    console.log('my data %j', data);
+    console.log('My data security marks %j', data);
   });
 
-  it('client can add security marks to finding', () => {
+  it('client can add security marks to finding v2', () => {
     const output = exec(
       `node v2/addFindingSecurityMarks.js ${data.findingName}`
     );
-    assert.match(output, new RegExp(data.findingName));
+    assert(output.includes(data.findingName));
     assert.match(output, /key_a/);
     assert.match(output, /value_a/);
     assert.match(output, /key_b/);
@@ -82,24 +82,24 @@ describe('Client with SourcesAndFindings', async () => {
     assert.notMatch(output, /undefined/);
   });
 
-  it('client can list findings with security marks', () => {
+  it('client can list findings with security marks v2', () => {
     // Ensure marks are set.
     exec(`node v2/addFindingSecurityMarks.js ${data.findingName}`);
     const output = exec(
       `node v2/listFindingsWithSecurityMarks.js ${data.sourceName}`
     );
-    assert.notMatch(output, new RegExp(data.findingName));
-    assert.match(output, new RegExp(data.untouchedFindingName));
+    assert(!output.includes(data.findingName));
+    assert(output.includes(data.untouchedFindingName));
     assert.notMatch(output, /undefined/);
   });
 
-  it('client can delete and update findings with security marks', () => {
+  it('client can delete and update findings with security marks v2', () => {
     // Ensure marks are set.
     exec(`node v2/addFindingSecurityMarks.js ${data.findingName}`);
     const output = exec(
       `node v2/deleteAndUpdateSecurityMarks.js ${data.findingName}`
     );
-    assert.match(output, new RegExp(data.findingName));
+    assert(output.includes(data.findingName));
     assert.match(output, /key_a/);
     assert.match(output, /new_value_for_a/);
     assert.notMatch(output, /key_b/);
@@ -107,11 +107,11 @@ describe('Client with SourcesAndFindings', async () => {
     assert.notMatch(output, /undefined/);
   });
 
-  it('client can delete and update findings with security marks', () => {
+  it('client can delete and update findings with security marks v2', () => {
     // Ensure marks are set.
     exec(`node v2/addFindingSecurityMarks.js ${data.findingName}`);
     const output = exec(`node v2/deleteSecurityMarks.js ${data.findingName}`);
-    assert.match(output, new RegExp(data.findingName));
+    assert(output.includes(data.findingName));
     assert.notMatch(output, /key_a/);
     assert.notMatch(output, /value_a/);
     assert.notMatch(output, /key_b/);
